@@ -11,7 +11,7 @@ path = gl.get_value('path')
 path_raw = gl.get_value('path_raw')
 
 
-def rank(data, method, file_name, rank_temporary):
+def rank(data, method, rank_path):
     corr_dict = calc_corr(data, method)
     corr_dict_tuplelist = list(zip(corr_dict.values(),
                                    corr_dict.keys()))
@@ -24,7 +24,7 @@ def rank(data, method, file_name, rank_temporary):
     test = test.reset_index(drop=True)
     test.index = test.index + 1
     test.insert(loc=0, column='rank', value=test.index)
-    test.to_csv(path + str(file_name) + "/" + rank_temporary, index=0)
+    test.to_csv(rank_path, index=0)
     torch.cuda.empty_cache()
 
 
