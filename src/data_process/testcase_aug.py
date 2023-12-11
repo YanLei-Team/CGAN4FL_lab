@@ -6,31 +6,30 @@ import torch.nn as nn
 from torch.autograd import Variable
 import torch
 import numpy as np
-import globalvar as gl
-import config
-
-file_name = gl.get_value('file_name')
-path = gl.get_value('path')
+from data_process.pre_data import csv2txt
+from paths import Paths
 
 
-def saveMatrix2Csv(data, file_name, path_w):
-    df = pd.read_csv(path + str(file_name) + "/matrix.csv")
+def save_matrix_as_csv(data, version_dir, path_w, label):
+    df = pd.read_csv(version_dir / "matrix.csv")
     header_list = list(df.columns)[0:-1]
     header_list.append('error')
 
     with open(path_w, 'w', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(header_list)
-        data = np.insert(data, -1, values=1, axis=1)
+        data = np.insert(data, -1, values=label, axis=1)
         for d in data:
             writer.writerow(d)
 
 
-def main(file_name):
-    gl._init()
+def main(program, version):
+    version_dir = Paths.get_version_dir("d4j", program, version)
     print("load coverage information matrix")
-    f1 = open(path + str(file_name) + "/matrix.txt", 'r', encoding='utf-8')
-    f2 = open(path + str(file_name) + "/error.txt", 'r', encoding='utf-8')
+    if not (version_dir / "matrix.txt").exists():
+        csv2txt(version_dir)
+    f1 = open(version_dir / "matrix.txt", 'r', encoding='utf-8')
+    f2 = open(version_dir / "error.txt", 'r', encoding='utf-8')
     """
     set parameters
     """
@@ -72,17 +71,24 @@ def main(file_name):
 
     TESTNUM_TOTAL = len(matrix_y)
     inputs_pre = []
-    testcase_fail_num = 0
+    fail_num = np.sum(matrix_y == 1)
+    pass_num = np.sum(matrix_y == 0)
+    assert fail_num != pass_num
+    if fail_num < pass_num:
+        minority_label = 1
+        minority_num = fail_num
+    else:
+        minority_label = 0
+        minority_num = pass_num
     for testcase_num in range(len(matrix_y)):
-        if matrix_y[testcase_num][0] == 1:
+        if matrix_y[testcase_num][0] == minority_label:
             inputs_pre.append(matrix_x[testcase_num])
-            testcase_fail_num = testcase_fail_num + 1
 
     inputs = torch.FloatTensor(inputs_pre)
     INUNITS = len(inputs_pre[0])
-    TESTNUM = testcase_fail_num
+    TESTNUM = minority_num
     if inputs_pre == 0:
-        print("skip！", nums[file_name])
+        print("skip！", nums[version])
         sys.exit()
     """ 
        Definition discriminator
@@ -195,7 +201,6 @@ def main(file_name):
             real_scores.data.mean(), fake_scores.data.mean()
         ))
 
-
     z = Variable(torch.randn((TESTNUM_TOTAL - TESTNUM * 2), z_dimension)).to(device)
     fake_testcase = G(z)
     fake_testcase = fake_testcase.cpu().detach()
@@ -208,8 +213,8 @@ def main(file_name):
                 item[element_num] = 0
             else:
                 item[element_num] = 1
-    path_w = path + str(file_name) + "/matrix_gen.csv"
-    saveMatrix2Csv(fake_testcase_numpy, file_name, path_w)
+    path_w = version_dir / "matrix_gen.csv"
+    save_matrix_as_csv(fake_testcase_numpy, version_dir, path_w, minority_label)
     print("generate complete")
 
 
