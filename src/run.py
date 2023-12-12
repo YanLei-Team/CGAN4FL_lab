@@ -75,7 +75,6 @@ def main():
     program = "Chart"
     program_data_path = Paths.get_program_data_dir("d4j", program)
     versions = os.listdir(program_data_path)
-    versions = ["1"]
     methods = [
         'ochiai',
         'dstar',
@@ -84,8 +83,8 @@ def main():
         'CNN',
         'RNN',
     ]
-    methods = ["ochiai"]
     for version in versions:
+        print(f"Processing buggy-version {version}")
         undersam(program, version, methods)
         cal(program, version, methods)
 

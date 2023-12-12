@@ -195,11 +195,12 @@ def main(program, version):
         g_optimizer.zero_grad()
         g_loss.backward()
         g_optimizer.step()
-        print('Epoch[{}/{}],d_loss:{:.6f},g_loss:{:.6f} '
-              'D real: {:.6f},D fake: {:.6f}'.format(
-            epoch, num_epoch, d_loss.data.item(), g_loss.data.item(),
-            real_scores.data.mean(), fake_scores.data.mean()
-        ))
+        if epoch % 100 == 0:
+            print('Epoch[{}/{}],d_loss:{:.6f},g_loss:{:.6f} '
+                  'D real: {:.6f},D fake: {:.6f}'.format(
+                epoch, num_epoch, d_loss.data.item(), g_loss.data.item(),
+                real_scores.data.mean(), fake_scores.data.mean()
+            ))
 
     z = Variable(torch.randn((TESTNUM_TOTAL - TESTNUM * 2), z_dimension)).to(device)
     fake_testcase = G(z)
