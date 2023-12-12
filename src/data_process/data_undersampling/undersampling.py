@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from data_process.ProcessedData import ProcessedData
 
+
 class UndersamplingData(ProcessedData):
 
     def __init__(self, raw_data):
@@ -17,24 +18,37 @@ class UndersamplingData(ProcessedData):
         pass_feature = np.array(self.feature_df[equal_zero_index])
         fail_feature = np.array(self.feature_df[equal_one_index])
 
-        select_num = len(fail_feature)
-        if select_num >= len(pass_feature):
-            return
+        if len(fail_feature) < len(pass_feature):
+            fail_is_minor = True
+            major_feature = pass_feature
+            minor_feature = fail_feature
+        elif len(fail_feature) > len(pass_feature):
+            fail_is_minor = False
+            major_feature = fail_feature
+            minor_feature = pass_feature
+        else:
+            return self.data_df
 
-        pass_i = []
-        while len(pass_i) <= select_num:
-            random_i = random.randint(0, len(pass_feature) - 1)
-            if random_i not in pass_i:
-                pass_i.append(random_i)
+        select_num = len(minor_feature)
+
+        major_i = []
+        while len(major_i) <= select_num:
+            random_i = random.randint(0, len(major_feature) - 1)
+            if random_i not in major_i:
+                major_i.append(random_i)
 
         temp_array = np.zeros([select_num, len(self.feature_df.values[0])])
         for i in range(select_num):
-            temp_array[i] = pass_feature[pass_i[i]]
+            temp_array[i] = major_feature[major_i[i]]
 
-        compose_feature = np.vstack((fail_feature, temp_array))
+        compose_feature = np.vstack((minor_feature, temp_array))
 
-        label_np = np.ones(select_num).reshape((-1, 1))
-        gen_label = np.zeros(select_num).reshape((-1, 1))
+        if fail_is_minor:
+            label_np = np.ones(select_num).reshape((-1, 1))
+            gen_label = np.zeros(select_num).reshape((-1, 1))
+        else:
+            label_np = np.zeros(select_num).reshape((-1, 1))
+            gen_label = np.ones(select_num).reshape((-1, 1))
         compose_label = np.vstack((label_np, gen_label))
 
         self.label_df = pd.DataFrame(compose_label, columns=['error'], dtype=float)
