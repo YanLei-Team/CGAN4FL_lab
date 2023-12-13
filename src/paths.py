@@ -6,18 +6,26 @@ class Paths:
 
     DatasetRoot = LabRoot / "data"
 
-    @classmethod
-    def get_dataset_dir(cls, dataset_name: str):
-        return cls.DatasetRoot / dataset_name
+    D4JDatasetRoot = DatasetRoot / "d4j"
 
     @classmethod
-    def get_program_data_dir(cls, dataset_name: str, program_name: str):
-        return cls.DatasetRoot / dataset_name / "data" / program_name
+    def get_d4j_buggy_lines(cls, program_name: str, version_name: str):
+        return cls.D4JDatasetRoot / "buggy-lines" / f"{program_name}-{version_name}.buggy.lines"
 
     @classmethod
-    def get_program_rank_dir(cls, dataset_name: str, program_name: str):
-        return cls.DatasetRoot / dataset_name / "rank" / program_name
+    def get_d4j_program_data_dir(cls, program_name: str):
+        return cls.D4JDatasetRoot / "data" / program_name
 
     @classmethod
-    def get_version_dir(cls, dataset_name: str, program_name: str, version_name: str):
-        return cls.DatasetRoot / dataset_name / "data" / program_name / version_name / "gzoltars" / program_name / version_name
+    def get_d4j_program_rank_dir(cls, program_name: str):
+        return cls.D4JDatasetRoot / "rank" / program_name
+
+    @classmethod
+    def get_d4j_version_dir(cls, program_name: str, version_name: str):
+        return cls.D4JDatasetRoot / "data" / program_name / version_name / "gzoltars" / program_name / version_name
+
+    MetaFLDatasetRoot = DatasetRoot / "MetaFL"
+
+    @classmethod
+    def get_metalfl_program_data_dir(cls, program_name: str):
+        return cls.MetaFLDatasetRoot / program_name

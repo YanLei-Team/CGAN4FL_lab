@@ -6,6 +6,7 @@ from calculate_suspiciousness import contrast_l
 from data_process.data_undersampling.undersampling import UndersamplingData
 from read_data.Defects4JDataLoader import Defects4JDataLoader
 from paths import Paths
+from natsort import natsorted
 
 
 class Pipeline:
@@ -36,7 +37,7 @@ class Pipeline:
 
 def undersam(program, version, methods):
     project_dir = Paths.DatasetRoot
-    version_dir = Paths.get_version_dir("d4j", program, version)
+    version_dir = Paths.get_d4j_version_dir(program, version)
     pl = Pipeline(project_dir, program, version)
     df, column_raw = pl.run()
     column_raw.append('error')
@@ -56,7 +57,7 @@ def undersam(program, version, methods):
 
 
 def cal(program, version, methods):
-    version_dir = Paths.get_version_dir("d4j", program, version)
+    version_dir = Paths.get_d4j_version_dir(program, version)
     testcase_aug.main(program, version)
     data_merge.d_merge(version_dir)
     data = pd.read_csv(version_dir / "matrix.csv", index_col=0)
@@ -73,8 +74,9 @@ def cal(program, version, methods):
 
 def main():
     program = "Chart"
-    program_data_path = Paths.get_program_data_dir("d4j", program)
+    program_data_path = Paths.get_d4j_program_data_dir(program)
     versions = os.listdir(program_data_path)
+    versions = natsorted(versions)
     methods = [
         'ochiai',
         'dstar',

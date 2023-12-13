@@ -42,10 +42,10 @@ def pre_raw(version_dir):
 
 def main():
     program = "Chart"
-    program_data_path = Paths.get_program_data_dir("d4j", program)
+    program_data_path = Paths.get_d4j_program_data_dir(program)
     versions = os.listdir(program_data_path)
     for version in versions:
-        version_dir = Paths.get_version_dir("d4j", program, version)
+        version_dir = Paths.get_d4j_version_dir(program, version)
         csv2txt(version_dir)
         pre_raw(version_dir)
 

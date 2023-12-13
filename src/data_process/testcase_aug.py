@@ -24,7 +24,7 @@ def save_matrix_as_csv(data, version_dir, path_w, label):
 
 
 def main(program, version):
-    version_dir = Paths.get_version_dir("d4j", program, version)
+    version_dir = Paths.get_d4j_version_dir(program, version)
     print("load coverage information matrix")
     if not (version_dir / "matrix.txt").exists():
         csv2txt(version_dir)
