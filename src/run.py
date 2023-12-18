@@ -1,4 +1,5 @@
 import os
+import sys
 import pandas as pd
 from data_process import data_merge, testcase_aug
 from calculate_suspiciousness import rank
@@ -73,22 +74,26 @@ def cal(program, version, methods):
 
 
 def main():
-    program = "Chart"
-    program_data_path = Paths.get_d4j_program_data_dir(program)
-    versions = os.listdir(program_data_path)
-    versions = natsorted(versions)
-    methods = [
-        'ochiai',
-        'dstar',
-        'barinel',
-        'MLP',
-        'CNN',
-        'RNN',
-    ]
-    for version in versions:
-        print(f"Processing buggy-version {version}")
-        undersam(program, version, methods)
-        cal(program, version, methods)
+    programs = sys.argv[1:]
+    for program in programs:
+        print(f"Processing program `{program}`")
+        program_data_path = Paths.get_d4j_program_data_dir(program)
+        versions = os.listdir(program_data_path)
+        versions = natsorted(versions)
+        methods = [
+            'ochiai',
+            'dstar',
+            'barinel',
+            'MLP',
+            'CNN',
+            'RNN',
+        ]
+        for version in versions:
+            print(f"Processing buggy-version `{version}` of program `{program}`")
+            undersam(program, version, methods)
+            cal(program, version, methods)
+            print(f"Done processing buggy-version `{version}` of program `{program}`")
+        print(f"Done processing program `{program}`")
 
 
 if __name__ == '__main__':
